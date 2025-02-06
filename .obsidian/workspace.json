@@ -1,0 +1,226 @@
+{
+  "main": {
+    "id": "c9e8f0a16e05244f",
+    "type": "split",
+    "children": [
+      {
+        "id": "b46a0580a10d82d7",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "2d152d9d897c94be",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "dev-log/99절절 프로젝트/99절절 프로젝트 v1 (deprecated).md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "99절절 프로젝트 v1 (deprecated)"
+            }
+          },
+          {
+            "id": "ea88f590a2f49173",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "dev-log/99절절 프로젝트/Caching을 이용한 쇼핑몰 랭킹 최적화 여정 DB부터 Redis까지.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Caching을 이용한 쇼핑몰 랭킹 최적화 여정 DB부터 Redis까지"
+            }
+          },
+          {
+            "id": "5626ae9b73a01449",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "dev-log/99절절 프로젝트/Caching을 이용한 쇼핑몰 랭킹 최적화 여정 DB부터 Redis까지.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Caching을 이용한 쇼핑몰 랭킹 최적화 여정 DB부터 Redis까지"
+            }
+          },
+          {
+            "id": "84cd23f941061ae3",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Doodle ETC.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Doodle ETC"
+            }
+          }
+        ],
+        "currentTab": 1
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "f27f589eb44e76ca",
+    "type": "split",
+    "children": [
+      {
+        "id": "ab521f0aef5cb593",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "591d208926ddeb53",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "42a4b2e1793f371d",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "ffd9a339fc1a5a8d",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 214.5
+  },
+  "right": {
+    "id": "e1214431b5acf110",
+    "type": "split",
+    "children": [
+      {
+        "id": "0770030713b7ef5b",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "4acf823dd8dca45d",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "dev-log/99절절 프로젝트/Caching을 이용한 쇼핑몰 랭킹 최적화 여정 DB부터 Redis까지.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for Caching을 이용한 쇼핑몰 랭킹 최적화 여정 DB부터 Redis까지"
+            }
+          },
+          {
+            "id": "46ff1987ac459cf5",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "dev-log/99절절 프로젝트/Caching을 이용한 쇼핑몰 랭킹 최적화 여정 DB부터 Redis까지.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from Caching을 이용한 쇼핑몰 랭킹 최적화 여정 DB부터 Redis까지"
+            }
+          },
+          {
+            "id": "232d713a1c60b2f6",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "ad07debe05d95fb5",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "dev-log/99절절 프로젝트/Caching을 이용한 쇼핑몰 랭킹 최적화 여정 DB부터 Redis까지.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of Caching을 이용한 쇼핑몰 랭킹 최적화 여정 DB부터 Redis까지"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "zk-prefixer:Create new unique note": false,
+      "workspaces:Manage workspace layouts": false,
+      "markdown-importer:Open format converter": false
+    }
+  },
+  "active": "ea88f590a2f49173",
+  "lastOpenFiles": [
+    "dev-log/99절절 프로젝트/99절절 프로젝트 v1 (deprecated).md",
+    "dev-log/99절절 프로젝트/Caching을 이용한 쇼핑몰 랭킹 최적화 여정 DB부터 Redis까지.md",
+    "Doodle ETC.md",
+    "dev-log/99절절 프로젝트",
+    "Untitled.canvas",
+    "dev-log"
+  ]
+}
