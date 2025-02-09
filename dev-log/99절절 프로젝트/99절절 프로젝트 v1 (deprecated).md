@@ -1,6 +1,4 @@
-
-  개발하며 만난 상황들 간단 정리
-  
+  개발하며 만난 상황들 간단 정리  
 ## 📑 목차  
   
 * [Dev-Log (deprecated)](#dev-log-deprecated)  
@@ -19,7 +17,9 @@ private void insertDataIntoRedisWithZSet() {
     log.info("Redis ZSet 동기 데이터 저장 시작");  
     redisTemplate.delete(CACHE_KEY);  
     List<ShoppingMall> allShoppingMalls = shoppingMallRepository.findAll();    ZSetOperations<String, String> zSetOps = redisTemplate.opsForZSet();  
-    allShoppingMalls.forEach(shoppingMall -> {        try {            String json = objectMapper.writeValueAsString(shoppingMall);            double score = -shoppingMall.getMonitoringDate().toEpochDay(); // 날짜 기반 정렬  
+    allShoppingMalls.forEach(shoppingMall -> {       
+     try {
+                 String json = objectMapper.writeValueAsString(shoppingMall);            double score = -shoppingMall.getMonitoringDate().toEpochDay(); // 날짜 기반 정렬  
   
             zSetOps.add(CACHE_KEY, json, score);        } catch (JsonProcessingException e) {            log.error("JSON 직렬화 실패 - ID: {}, 오류: {}", shoppingMall.getId(), e.getMessage());  
         }    });  
@@ -36,8 +36,16 @@ public CompletableFuture<Void> insertDataIntoRedisWithZSetAsync() {
     redisTemplate.delete(CACHE_KEY);  
     List<ShoppingMall> allShoppingMalls = shoppingMallRepository.findAll();    ZSetOperations<String, String> zSetOps = redisTemplate.opsForZSet();  
     // ✅ `CompletableFuture` 리스트로 모든 병렬 작업을 추적  
-    List<CompletableFuture<Void>> futures = IntStream.range(0, (allShoppingMalls.size() + BATCH_SIZE - 1) / BATCH_SIZE)            .mapToObj(batchIndex -> CompletableFuture.runAsync(() -> {                int start = batchIndex * BATCH_SIZE;                int end = Math.min(start + BATCH_SIZE, allShoppingMalls.size());  
-                for (int i = start; i < end; i++) {                    ShoppingMall mall = allShoppingMalls.get(i);                    try {                        String json = objectMapper.writeValueAsString(mall);                        double score = -mall.getMonitoringDate().toEpochDay();                        zSetOps.add(CACHE_KEY, json, score);                    } catch (JsonProcessingException e) {                        log.error("JSON 직렬화 실패 - ID: {}, 오류: {}", mall.getId(), e.getMessage());  
+    List<CompletableFuture<Void>> futures = IntStream.range(0, (allShoppingMalls.size() + BATCH_SIZE - 1) / BATCH_SIZE)            .mapToObj(batchIndex -> CompletableFuture.runAsync(() -> {                
+    int start = batchIndex * BATCH_SIZE;                
+    int end = Math.min(start + BATCH_SIZE, allShoppingMalls.size());  
+                
+    for (int i = start; i < end; i++) {                    
+    ShoppingMall mall = allShoppingMalls.get(i);                    
+    try {                        
+				String json = objectMapper.writeValueAsString(mall);                        double score = -mall.getMonitoringDate().toEpochDay();                        zSetOps.add(CACHE_KEY, json, score);                    
+	} catch (JsonProcessingException e) {
+	    log.error("JSON 직렬화 실패 - ID: {}, 오류: {}", mall.getId(), e.getMessage());  
                     }                }            }))            .collect(Collectors.toList());  
     // ✅ 모든 작업이 끝날 때까지 기다린 후 TTL 설정  
     return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))            .thenRun(() -> {                redisTemplate.expire(CACHE_KEY, CACHE_TTL, TimeUnit.SECONDS);                log.info("Redis ZSet 비동기 데이터 저장 완료");  

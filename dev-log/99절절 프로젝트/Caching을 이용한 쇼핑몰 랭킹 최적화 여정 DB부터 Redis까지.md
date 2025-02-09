@@ -75,19 +75,41 @@
 ## 4. V1-3: `Spring-Cache`와 `Redis` 캐싱 방법  
   
 `CacheManager`를 사용하는 경우, `Spring-Cache`와 `Redis` 캐싱 설정 방법은 크게 다르지 않다. 캐싱을 하는 데 사용되는`CacheManager`를 달리 한 것뿐이다. 아래 코드는 각각의 `CacheManager` 설정 방법이다. 아래 설정에서 볼 수 있는 것처럼, 두 캐싱 방법은 TTL 설정에서 차이를 보인다.`Redis`는 `CacheManager`에서 직접 TTL을 설정할 수 있다. 하지만 현재 사용 중인 `Spring-Cache`의 기본 구현체인 `ConcurrentMapCache`는 TTL 설정을 지원하지 않지만, `Caffeine` 같은 다른 구현체를 사용하면 TTL 설정이 가능하다.  
+
+```java
+    // RedisCacheManager 설정
+    @Bean
+    public RedisCacheManager redisCacheManager(RedisConnectionFactory connectionFactory) {
+        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
+                .entryTtl(Duration.ofMinutes(5)) // 기본 캐싱 시간
+                .serializeKeysWith(
+                        RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer())
+                )
+                .serializeValuesWith(
+                        RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())
+                );
+
+        return RedisCacheManager.builder(connectionFactory)
+                .cacheDefaults(config)
+                .withCacheConfiguration("VVIC", // "VVIC"라는 이름의 캐시에 대해서는 6시간 TTL 적용
+                        config.entryTtl(Duration.ofHours(6))) // 
+                .build();
+    }
+```
   
 ```java  
-    // RedisCacheManager 설정  
-    @Bean    public RedisCacheManager redisCacheManager(RedisConnectionFactory connectionFactory) {        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()                .entryTtl(Duration.ofMinutes(5)) // 기본 캐싱 시간  
-                .serializeKeysWith(                        RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer())                )                .serializeValuesWith(                        RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())                );  
-        return RedisCacheManager.builder(connectionFactory)                .cacheDefaults(config)                .withCacheConfiguration("VVIC", // "VVIC"라는 이름의 캐시에 대해서는 6시간 TTL 적용  
-                        config.entryTtl(Duration.ofHours(6))) //                .build();  
-    }  
-```  
-  
-```java  
-    // Spring-Cache 설정  
-    @Bean    public CacheManager cacheManager() {        SimpleCacheManager cacheManager = new SimpleCacheManager();        ArrayList<ConcurrentMapCache> caches = new ArrayList<>();        caches.addAll(List.of(                new ConcurrentMapCache("top100Malls:list"),                new ConcurrentMapCache("viewHistory")        ));        cacheManager.setCaches(caches);        return cacheManager;    }  
+// Spring-Cache 설정  
+@Bean    
+public CacheManager cacheManager() {
+	SimpleCacheManager cacheManager = new SimpleCacheManager(); 
+	ArrayList<ConcurrentMapCache> caches = new ArrayList<>();
+	caches.addAll(List.of(
+		new ConcurrentMapCache("top100Malls:list"),                
+		new ConcurrentMapCache("viewHistory")       
+	));        
+	cacheManager.setCaches(caches);        
+	return cacheManager;    
+}  
 ```  
   
 ---  
@@ -238,22 +260,28 @@ V2에서는 Redis에 저장된 캐시 데이터를 최신 상태로 간주한다
 * updateHashRanking(): Hash에 저장된 viewCount 값을 업데이트한다.  
   
 ```java  
-    private void updateZSetRanking(Long shoppingMallId) {        zSetOps.incrementScore(ZSET_CACHE_KEY, shoppingMallId.toString(), 1); // atomic    }  
+private void updateZSetRanking(Long shoppingMallId) {
+	zSetOps.incrementScore(ZSET_CACHE_KEY, shoppingMallId.toString(), 1); // atomic    
+}  
   
   
-    private void updateHashRanking(Long shoppingMallId) {  
-        Object obj = hashOps.get(HASH_CACHE_KEY, shoppingMallId.toString());  
-        ShoppingMallResponseDto response = objectMapper.convertValue(obj, ShoppingMallResponseDto.class);        response.increaseViewCount();  
-        if (obj != null) {            hashOps.put(HASH_CACHE_KEY, response.getId().toString(), response);        }    }  
+private void updateHashRanking(Long shoppingMallId) {  
+    Object obj = hashOps.get(HASH_CACHE_KEY, shoppingMallId.toString());  
+    ShoppingMallResponseDto response = objectMapper.convertValue(obj, ShoppingMallResponseDto.class);        
+	response.increaseViewCount();  
+        if (obj != null) {            
+			hashOps.put(HASH_CACHE_KEY, response.getId().toString(), response);       
+	}    
+}  
 ```  
   
 현재 구조에서는 각 연산이 개별적으로는 Thread-safe하지만, 두 개의 자료구조를 동시에 업데이트할 때는 트랜잭션 처리가 필요하다.  
   
 <u>**트랜잭션 미적용에 대한 고려**</u>  
   
-8. Sorted Set의 Score 값은 원자적으로(Atomic) 증가하므로 정확성이 보장된다.  
-9. Hash에 저장된 viewCount는 Race Condition이 발생할 가능성이 있지만, 조회수를 노출할 때 Sorted Set의 Score 값을 기준으로 표시하므로 큰 문제가 되지 않는다.  
-10. DB에 업데이트할 때는 Sorted Set의 Score 값과 Hash의 viewCount 값이 다를 경우, Score 값을 우선하도록 설정했다.  
+2. Sorted Set의 Score 값은 원자적으로(Atomic) 증가하므로 정확성이 보장된다.  
+3. Hash에 저장된 viewCount는 Race Condition이 발생할 가능성이 있지만, 조회수를 노출할 때 Sorted Set의 Score 값을 기준으로 표시하므로 큰 문제가 되지 않는다.  
+4. DB에 업데이트할 때는 Sorted Set의 Score 값과 Hash의 viewCount 값이 다를 경우, Score 값을 우선하도록 설정했다.  
   
 현재 구조는 동시성 문제가 완전히 해결되지 않은 상태이므로, 추후 트랜잭션을 적용하는 것이 바람직하다.  
   
@@ -279,8 +307,8 @@ V2에서는 Redis에 저장된 캐시 데이터를 최신 상태로 간주한다
   
 V2에서는 조회수 기반 랭킹 처리에서 중요한 엣지 케이스를 발견했다. 시스템은 상위 100개 쇼핑몰의 데이터를 최신 상태로 유지하고 10분마다 DB에 변경 내역을 반영하는 구조인데, 처음에는 단순히 랭킹 순위 변동만 고려했다. 하지만 두 가지 중요한 시나리오를 놓치고 있었다.  
   
-11. 새로운 쇼핑몰이 랭킹권에 진입하는 경우  
-12. 기존 쇼핑몰이 랭킹권 밖으로 밀려나는 경우  
+5. 새로운 쇼핑몰이 랭킹권에 진입하는 경우  
+6. 기존 쇼핑몰이 랭킹권 밖으로 밀려나는 경우  
   
 특히 랭킹권 밖으로 밀려난 쇼핑몰을 캐시에서 삭제하면, 해당 쇼핑몰의 이후 조회수 변동을 추적할 수 없게 된다. 또한 아직 랭킹권에 진입하지 못한 새로운 쇼핑몰의 조회수도 지속적으로 추적해야 한다. 이러한 문제를 해결하기 위해, 캐시 데이터 사이즈를 100개로 제한하지 않고 10분 동안의 모든 조회수 변동을 기록하도록 수정했다. 이렇게 수집된 전체 데이터는 주기적으로 DB에 일괄 반영된다.  
   
@@ -292,24 +320,25 @@ V2에서는 조회수 기반 랭킹 처리에서 중요한 엣지 케이스를 �
   
 현재 상황:  
   
-13. 각 쇼핑몰마다 다른 viewCount 값을 가짐  
-14. 단순 `JPA update`로는 벌크 업데이트 처리가 비효율적  
-15. JPQL로 시도했으나 여러 레코드의 서로 다른 값을 한 번에 업데이트하기 까다로움  
+7. 각 쇼핑몰마다 다른 viewCount 값을 가짐  
+8. 단순 `JPA update`로는 벌크 업데이트 처리가 비효율적  
+9. JPQL로 시도했으나 여러 레코드의 서로 다른 값을 한 번에 업데이트하기 까다로움  
   
 여러번 나눠서 처리하는 게 아니라 한 번에 처리하고 싶기에, Native Query를 사용했다. `view_count`와 `shopping_mall_id`를 매칭시켜야 하기에, `CASE-WHEN` 구문을 활용했다. 아래는 실제 DB로 날라간 쿼리의 일부다:  
   
 ```sql  
 UPDATE  
-        shopping_mall_stats    SET  
-        view_count = CASE            WHEN shopping_mall_id = 124732   
-                THEN 12312   
-            WHEN shopping_mall_id = 132984   
-                THEN 3333   
-            WHEN shopping_mall_id = 124389   
-                THEN 2222   
-         .  
-         .         .   
-         END  
+    shopping_mall_stats    SET  
+	view_count = CASE            WHEN shopping_mall_id = 124732   
+			THEN 12312   
+		WHEN shopping_mall_id = 132984   
+			THEN 3333   
+		WHEN shopping_mall_id = 124389   
+			THEN 2222   
+	 .  
+	 .
+	 .   
+	 END  
     WHERE shopping_mall_id IN (124732, 132984, 124389 ...)    
 ```  
   
